@@ -7,15 +7,25 @@
 Clone the package and install the deps:
 
 ```bash
-git clone git@github.com:ikwattro/neo4j-packstream-php
-cd neo4j-packstream php
-composer install
+composer require ikwattro/neo4j-packstream-php
 ```
 
-Run the test
+Require the library and create a Session by providing the neo4j host and port :
 
-```bash
-php test.php
+```php
+<?php
+
+require_once(__DIR__.'/vendor/autoload.php');
+
+use Neo4j\PackStream\Session;
+
+$session = new Session('localhost', 7687);
+```
+
+Send a query :
+
+```
+$result = $session->runQuery('MATCH (n) RETURN n');
 ```
 
 --- 
