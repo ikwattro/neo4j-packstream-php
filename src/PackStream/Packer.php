@@ -37,9 +37,6 @@ class Packer
         } elseif (is_array($v)) {
             $size = count($v);
             $stream .= $this->getMapMarker($size);
-            if (0 === $size) {
-                //$stream .= chr(self::MISC_ZERO);
-            }
         }
 
         return $stream;
@@ -76,9 +73,9 @@ class Packer
 
     public function getPullAllMessage()
     {
-        $msg = chr(self::STRUCTURE_TINY);
+        $msg = $this->getStructureMarker(0);
         $msg .= chr(self::SIGNATURE_PULL_ALL);
-        $length = pack('h', mb_strlen($msg, 'ASCII'));
+        $length = $this->getSizeMarker($msg);
 
         return $length . $msg . $this->getEndSignature();
     }
@@ -86,9 +83,13 @@ class Packer
     public function getSizeMarker($stream)
     {
         $size = mb_strlen($stream, 'ASCII');
-        var_dump($size);
 
         return pack('n', $size);
+    }
+
+    public function getStructureMarker($size)
+    {
+        return chr(self::STRUCTURE_TINY + $size);
     }
 
     public function packBigEndian($v)

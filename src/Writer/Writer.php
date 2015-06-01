@@ -38,17 +38,13 @@ class Writer
 
     public function writeQuery($query, array $params = array())
     {
-        $msg = $this->packer->getStandardQueryStructureMarker();
-        $msg .= $this->packer->getRunSignature();
-        $msg .= $this->packer->pack($query);
-        $msg .= $this->packer->pack($params);
-        $message = $this->packer->getSizeMarker($msg);
-        $message .= $msg;
-        $pullAll = $this->packer->getPullAllMessage();
-        $message .= $this->packer->getSizeMarker($pullAll);
-        $message .= $pullAll;
-        $message .= $this->packer->getEndSignature();
-        $this->messages[] = $message;
+        $queryChunk = $this->packer->getStandardQueryStructureMarker();
+        $queryChunk .= $this->packer->getRunSignature();
+        $queryChunk .= $this->packer->pack($query);
+        $queryChunk .= $this->packer->pack($params);
+        $this->messages[] = $this->packer->getSizeMarker($queryChunk) . $queryChunk . $this->packer->getEndSignature();
+        $pullChunk = $this->packer->getPullAllMessage();
+        $this->messages[] = $pullChunk;
     }
 
     public function flush()
@@ -56,9 +52,24 @@ class Writer
         if (!$this->io->isConnected()) {
             $this->doHandShake();
         }
+        $stream = '';
         foreach ($this->messages as $message) {
-            $this->io->write($message);
+            $stream .= $message;
         }
+        $this->io->write($stream);
+
+        $chunkSize = -1;
+        $data = [];
+        while ($chunkSize !== 0) {
+            $chunkHeader = $this->io->read(2);
+            $chunkSize = hexdec(unpack('H*', $chunkHeader)[1]);
+            $this->io->read(2);
+            var_dump($chunkSize);
+            $data[] = $this->io->read($chunkSize);
+            echo 'Chunk Size is ' . $chunkSize . "\n";
+        }
+        var_dump($data);
+
         $this->io->close();
     }
 }
