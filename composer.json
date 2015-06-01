@@ -1,0 +1,18 @@
+{
+    "name": "ikwattro/neo4j-packstream-php",
+    "description": "Neo4j Packstream Binary Protocol PHP Driver",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christophe Willemsen",
+            "email": "willemsen.christophe@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+      "psr-4": {
+        "Neo4j\\PackStream\\": "src/"
+      }
+    }
+}
