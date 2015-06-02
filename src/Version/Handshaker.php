@@ -41,7 +41,11 @@ class Handshaker
         }
         $this->io->write($msg);
         $response = unpack('N', $this->io->read(4));
+        $version = $response[1];
+        if (0 === $version) {
+            throw new Neo4jPackStreamHandshakeException("No compatible version could be arranged during the handshake");
+        }
 
-        return $response[1];
+        return $version;
     }
 }

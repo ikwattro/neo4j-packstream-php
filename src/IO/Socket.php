@@ -21,10 +21,13 @@ class Socket
 
     private $socket;
 
-    public function __construct($host, $port)
+    private $timeout;
+
+    public function __construct($host, $port, $timeout = 2)
     {
         $this->host = $host;
         $this->port = $port;
+        $this->timeout = $timeout;
     }
 
     public function connect()
@@ -44,6 +47,8 @@ class Socket
         socket_set_block($this->socket);
         socket_set_option($this->socket, SOL_TCP, TCP_NODELAY, 1);
         socket_set_option($this->socket, SOL_SOCKET, SO_KEEPALIVE, 1);
+        socket_set_option($this->socket, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $this->timeout, 'usec' => 0));
+        socket_set_option($this->socket, SOL_SOCKET, SO_SNDTIMEO, array('sec' => $this->timeout, 'usec' => 0));
 
         return true;
     }
